@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Dashboard | Farm2Hotels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* --- BRAND THEME & CSS VARIABLES --- */
+        :root { 
+            --primary-green: #2ecc71; 
+            --sidebar-gradient: linear-gradient(135deg, #0f3d4a 0%, #206a5d 100%);
+            --sidebar-width: 260px;
+            --card-radius: 20px;
+            --btn-radius: 50px;
+            /* Light Mode Colors */
+            --bg-body: #eaeff1;
+            --bg-card: #ffffff;
+            --text-main: #1a202c;
+            --text-muted: #8898aa;
+            --border-color: rgba(0,0,0,0.05);
+        }
+        /* --- DARK MODE OVERRIDES --- */
+        body.dark-mode {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+        body { 
+            background-color: var(--bg-body); 
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main);
+            margin: 0;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+        /* --- SIDEBAR --- */
+        .sidebar {
+            height: 100vh; width: var(--sidebar-width); 
+            position: fixed; top: 0; left: 0; 
+            background: var(--sidebar-gradient); 
+            color: white; z-index: 1000; padding-top: 20px;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+        }
+        .brand-logo { text-align: center; padding: 20px 20px; }
+        .logo-icon { 
+            font-size: 30px; background: rgba(255,255,255,0.1);
+            width: 60px; height: 60px; line-height: 60px;
+            border-radius: 50%; margin: 0 auto 10px auto; display: block;
+        }
+        .sidebar a {
+            padding: 16px 30px; display: flex; align-items: center;
+            color: rgba(255,255,255,0.7); text-decoration: none; 
+            margin: 8px 20px; border-radius: var(--btn-radius); 
+            font-weight: 500; transition: 0.3s;
+        }
+        .sidebar a:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+        .sidebar a.active { background: #fff; color: #0f3d4a; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .sidebar i { width: 25px; margin-right: 10px; }
+        /* --- TOP NAV --- */
+        .top-nav {
+            margin-left: var(--sidebar-width);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .dark-mode-btn {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            color: var(--text-main); border-radius: 50px; padding: 8px 20px;
+            font-weight: 600; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center;
+        }
+        /* --- MAIN CONTENT AREA --- */
+        .main-content { margin-left: var(--sidebar-width); padding: 0 40px 40px 40px; }
+        .dashboard-header {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -1.5px;
+            margin-bottom: 5px;
+            margin-top: 0;
+        }
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: var(--bg-card); padding: 30px; border-radius: var(--card-radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-color);
+            transition: 0.3s;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .icon-circle {
+            width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem;
+        }
+        .text-green { color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+        .text-blue { color: #2980b9; background: rgba(41, 128, 185, 0.1); }
+        .text-orange { color: #f39c12; background: rgba(243, 156, 18, 0.1); }
+        .stat-card h5 { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin: 0 0 5px 0; }
+        .stat-card h2 { font-size: 2.2rem; font-weight: 800; color: var(--text-main); margin: 0; }
+        /* --- NEW PRODUCT CARD DESIGN --- */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+        .product-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        /* The "Artistic" Header Area */
+        .p-visual-header {
+            height: 160px;
+            position: relative;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        /* DYNAMIC BACKGROUNDS */
+        .bg-veg { background: linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%); }
+        .bg-fruit { background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
+        .bg-grain { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+        .bg-default { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+        /* The Big Watermark Icon */
+        .watermark-icon {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            font-size: 8rem;
+            opacity: 0.25;
+            transform: rotate(-15deg);
+            color: rgba(0,0,0,0.2);
+            transition: transform 0.5s;
+        }
+        .product-card:hover .watermark-icon { transform: rotate(0deg) scale(1.1); }
+        /* Floating Badge */
+        .fresh-badge {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            width: fit-content;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        /* Card Content */
+        .p-body { padding: 20px; }
+        .p-cat { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 1px; }
+        .p-title { font-size: 1.4rem; font-weight: 800; margin: 5px 0; color: var(--text-main); }
+        .p-farm { font-size: 0.9rem; color: var(--primary-green); margin-bottom: 15px; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .p-price-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .p-price { font-size: 1.3rem; font-weight: 800; color: var(--text-main); }
+        .p-unit { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        /* Add Button */
+        .btn-add {
+            background: var(--text-main); color: var(--bg-card); border: none;
+            width: 40px; height: 40px; border-radius: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .btn-add:hover { transform: scale(1.1); background: var(--primary-green); color: white; }
+        /* --- EMPTY STATE --- */
+        .empty-state { text-align: center; padding: 80px 20px; margin-top: 40px; }
+        .text-muted { color: var(--text-muted) !important; font-weight: 600; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-up { animation: slideUp 0.6s ease forwards; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand-logo">
+            <div class="logo-icon"><i class="fas fa-hotel"></i></div>
+            <h4 class="font-weight-bold" style="margin: 0;">Farm2Kitchen</h4>
+        </div>
+        <nav>
+            <a href="{% url 'hotel_dashboard' %}" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="{% url 'browse_farmer' %}"><i class="fas fa-tractor"></i> Browse Farmers</a>
+            <a href="{% url 'my_cart' %}"><i class="fas fa-shopping-cart"></i> My Cart</a>
+            <a href="{% url 'hotel_profile' %}"><i class="fas fa-user-circle"></i> Hotel Profile</a>
+            <a href="{% url 'orders' %}"><i class="fas fa-receipt"></i> My Orders</a>
+            
+            <a href="javascript:void(0);" style="margin-top: 50px; color: #ff4757; text-decoration: none;" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </div>
+
+    <div class="top-nav">
+        <button class="dark-mode-btn" onclick="toggleDarkMode()">
+            <i id="modeIcon" class="fas fa-moon mr-2"></i> <span id="modeBtnText">Dark Mode</span>
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="animate-up" style="margin-bottom: 40px;">
+            <h1 class="dashboard-header">Hotel Dashboard</h1>
+            <p class="text-muted">Sourcing Freshness Directly from the Roots</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="animate-up">
+                <div class="stat-card">
+                    <div>
+                        <h5>Total Spend</h5>
+                        <h2 class="counter">₹{{ total_spend }}</h2>
+                    </div>
+                    <div class="icon-circle text-green"><i class="fas fa-wallet"></i></div>
+                </div>
+            </div>
+
+            <div class="animate-up" style="animation-delay: 0.1s;">
+                <div class="stat-card">
+                    <div>
+                        <h5>Pending Orders</h5>
+                        <h2 class="counter">{{ pending_orders_count }}</h2>
+                    </div>
+                    <div class="icon-circle text-blue"><i class="fas fa-truck"></i></div>
+                </div>
+            </div>
+
+            <div class="animate-up" style="animation-delay: 0.2s;">
+                <div class="stat-card">
+                    <div>
+                        <h5>Connected Farmers</h5>
+                        <h2 class="counter">{{ connected_farmers_count }}</h2>
+                    </div>
+                    <div class="icon-circle text-orange"><i class="fas fa-leaf"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 40px; margin-bottom: 20px; font-weight: 700; color: var(--text-main);">
+            Fresh Harvests
+        </h3>
+
+        {% if products %}
+        <div class="product-grid animate-up" style="animation-delay: 0.2s;">
+            {% for product in products %}
+            <div class="product-card">
+                
+                <div class="p-visual-header 
+                    {% if product.category == 'Vegetables' %} bg-veg 
+                    {% elif product.category == 'Fruits' %} bg-fruit 
+                    {% elif product.category == 'Grains' %} bg-grain 
+                    {% else %} bg-default {% endif %}">
+                    
+                    <div class="fresh-badge"><i class="fas fa-check-circle text-green"></i> FRESH</div>
+                    
+                    <div class="watermark-icon">
+                        {% if product.category == 'Vegetables' %}
+                            <i class="fas fa-carrot"></i>
+                        {% elif product.category == 'Fruits' %}
+                            <i class="fas fa-apple-alt"></i>
+                        {% elif product.category == 'Grains' %}
+                            <i class="fas fa-wheat"></i>
+                        {% else %}
+                            <i class="fas fa-leaf"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="p-body">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span class="p-cat">{{ product.category }}</span>
+                        <span style="font-size: 0.75rem; font-weight: 700; color: {% if product.quantity < 10 %}#ef4444{% else %}#10b981{% endif %};">
+                            {{ product.quantity }} kg left
+                        </span>
+                    </div>
+                    
+                    <h4 class="p-title">{{ product.name }}</h4>
+                    
+                    <div class="p-farm">
+                        <i class="fas fa-tractor"></i> 
+                        {{ product.farmer.farm_name }}
+                    </div>
+                    
+                    <div class="p-price-row">
+    <div>
+        <span class="p-price">₹{{ product.price_per_kg }}</span> 
+        <span class="p-unit">/ {{ product.unit|default:"kg" }}</span>
+    </div>
+    
+    {% if product.is_active and product.quantity_available > 0 %}
+        <button class="btn-add" title="Add to Cart" onclick="addToCart({{ product.id }})">
+            <i class="fas fa-plus"></i>
+        </button>
+    {% else %}
+        <button class="btn-add" style="background: #ccc; cursor: not-allowed;" title="Out of Stock" disabled>
+            <i class="fas fa-ban"></i>
+        </button>
+    {% endif %}
+</div>
+                </div>
+            </div>
+            {% endfor %}    
+
+        </div>
+     \{% endif %}
+
+    <script>
+        function toggleDarkMode() {
+            const body = document.body;
+            const icon = document.getElementById('modeIcon');
+            const btnText = document.getElementById('modeBtnText');
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                icon.className = 'fas fa-sun mr-2';
+                btnText.innerText = 'Light Mode';
+            } else {
+                localStorage.setItem('theme', 'light');
+                icon.className = 'fas fa-moon mr-2';
+                btnText.innerText = 'Dark Mode';
+            }
+        }
+        window.onload = () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('modeIcon').className = 'fas fa-sun mr-2';
+                document.getElementById('modeBtnText').innerText = 'Light Mode';
+            }
+        };
+        function logout() {
+            if (confirm("Are you sure you want to log out of Farm2Hotels?")) {
+                window.location.href = "{% url 'home' %}";
+            }
+        }
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+       // Inside hotel_dashboard.html script
+function addToCart(productId) {
+    let quantity = prompt("Enter Quantity to Buy:", "1");
+    
+    // Stop if user cancels or enters nothing
+    if (quantity === null || quantity.trim() === "") { 
+        return; 
+    }
+
+    // Ensure we are sending a clean string or number
+    quantity = parseFloat(quantity); 
+    
+    // Basic frontend validation
+    if (isNaN(quantity) || quantity <= 0) {
+        alert("Please enter a valid number greater than 0.");
+        return;
+    }
+
+    fetch(`/api/add-to-cart/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ quantity: quantity }) 
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (response.ok) {
+            alert("Success: " + data.message);
+        } else {
+            alert("Error: " + (data.error || "Failed to add item"));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("Network Error. Check console.");
+    });
+}
+    </script>
+</body>
+</html>

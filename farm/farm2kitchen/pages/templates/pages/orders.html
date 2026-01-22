@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders | Farm2Hotels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Reuse previous CSS variables */
+        :root { --primary-green: #2ecc71; --bg-body: #eaeff1; --text-main: #1a202c; --sidebar-width: 260px; --sidebar-gradient: linear-gradient(135deg, #0f3d4a 0%, #206a5d 100%); }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; margin: 0; color: var(--text-main); }
+        
+        .sidebar { height: 100vh; width: var(--sidebar-width); position: fixed; top: 0; left: 0; background: var(--sidebar-gradient); color: white; padding-top: 20px; }
+        .sidebar a { padding: 16px 30px; display: flex; align-items: center; color: rgba(255,255,255,0.7); text-decoration: none; margin: 8px 20px; border-radius: 50px; }
+        .sidebar a:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+        .brand-logo { text-align: center; padding: 20px; font-weight: bold; font-size: 1.2rem; }
+
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        
+        .order-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-left: 5px solid var(--primary-green); }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .order-status { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .status-Pending { background: #fff3cd; color: #856404; }
+        .status-Delivered { background: #d4edda; color: #155724; }
+        /* Add this to your <style> block */
+        .status-Denied { background: #fadbd8; color: #c0392b; border: 1px solid #e74c3c; }
+
+        .btn-cancel { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9rem;}
+        .btn-cancel:hover { background: #c0392b; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand-logo">Farm2Kitchen</div>
+        <nav>
+            
+            <a href="{% url 'orders' %}" style="background: white; color: #0f3d4a; font-weight: bold;"><i class="fas fa-box mr-2"></i> My Orders</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <h1>My Orders</h1>
+        
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <h3 style="margin:0;">Order #{{ order.id }}</h3>
+                        <small style="color: #888;">{{ order.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    <span class="order-status status-{{ order.status }}">{{ order.status }}</span>
+                </div>
+
+                <p><strong>Farmer:</strong> {{ order.farmer.farm_name }}</p>
+                
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 10px;">
+                    {% for item in order.order_items.all %}
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                            <span>{{ item.item_name }}</span>
+                            <span>{{ item.quantity }} kg</span>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {% if order.status == 'Pending' %}
+                <div style="margin-top: 15px; text-align: right;">
+                    <a href="{% url 'cancel_order' order.id %}" class="btn-cancel" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel Order</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No orders found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
