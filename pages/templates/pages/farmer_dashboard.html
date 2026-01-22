@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard | Farm2Hotels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* (KEEP YOUR EXISTING CSS EXACTLY AS IS) */
+        * { box-sizing: border-box; }
+        :root { --primary: #12b74b; --dark: #0f3d4a; --success: #28a745; --danger: #dc3545; --info: #17a2b8; --warning: #ffc107; --light: #f8f9fa; --border: #dee2e6; }
+        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; font-size: 0.8rem; overflow: hidden; margin: 0; }
+        .sidebar { width: 180px; height: 100vh; background: var(--dark); position: fixed; color: white; z-index: 100; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar-brand { padding: 15px; font-weight: 800; color: var(--primary); text-align: center; border-bottom: 1px solid #ffffff1a; font-size: 0.9rem; }
+        .nav-container { flex-grow: 1; }
+        .nav-link { color: #ffffffb3; padding: 10px 15px; display: flex; align-items: center; cursor: pointer; text-decoration: none; }
+        .nav-link:hover, .nav-link.active { color: white; background: #2ecc711a; border-left: 3px solid var(--primary); }
+        .logout-wrapper { border-top: 1px solid #ffffff1a; padding: 10px 0; margin-bottom: 10px; }
+        .logout-link { color: #ff7675 !important; font-weight: 600; }
+        .main { margin-left: 180px; height: 100vh; overflow-y: auto; }
+        .header { background: white; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px #0000000d; position: sticky; top: 0; z-index: 99; }
+        .inventory-card { margin: 0 10px; border-radius: 12px; overflow: hidden; min-height: 200px; background: white; }
+        .inventory-header { padding: 15px 20px !important; background: #fff !important; }
+        .inventory-header h6 { font-size: 1rem !important; }
+        #inventoryList tr { cursor: pointer; transition: background 0.2s; }
+        #inventoryList tr:hover { background-color: #f0fdf4; }
+        #inventoryList td { padding: 16px 12px !important; font-size: 0.9rem; vertical-align: middle !important; }
+        .table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding: 12px !important; color: #718096; text-align: left; }
+        .search-container { position: relative; width: 200px; margin-right: 15px; }
+        .search-container input { height: 32px; font-size: 0.75rem; padding-left: 30px; border-radius: 6px; border: 1px solid #ddd; width: 100%; }
+        .search-container i { position: absolute; left: 10px; top: 10px; color: #aaa; font-size: 0.7rem; }
+        .stat-card { background: white; padding: 12px; border-radius: 10px; border: 1px solid #eef0f2; text-align: center; }
+        .val { font-size: 1.4rem; font-weight: 800; display: block; color: #2d3436; }
+        .label { font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 700; }
+        .btn-status { font-size: 0.7rem; font-weight: 700; padding: 5px 14px; border-radius: 20px; border: none; min-width: 100px; pointer-events: none; }
+        .status-on { background: #e8f8ef; color: #12b74b; }
+        .status-off { background: #fdeaea; color: #e74c3c; }
+        .custom-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1000; align-items: center; justify-content: center; }
+        .add-card { background: white; width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .compact-label { font-size: 0.65rem; font-weight: 700; color: #555; margin-bottom: 4px; display: block; }
+        .container-fluid { width: 100%; padding: 0 15px; }
+        .row { display: flex; flex-wrap: wrap; margin-left: -15px; margin-right: -15px; }
+        .col-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 15px; }
+        .col-6 { flex: 0 0 50%; max-width: 50%; padding: 0 15px; }
+        .d-flex { display: flex !important; }
+        .justify-content-between { justify-content: space-between !important; }
+        .align-items-center { align-items: center !important; }
+        .flex-column { flex-direction: column !important; }
+        .flex-grow-1 { flex-grow: 1 !important; }
+        .mt-2 { margin-top: 0.5rem !important; }
+        .mt-3 { margin-top: 1rem !important; }
+        .mt-4 { margin-top: 1.5rem !important; }
+        .mb-0 { margin-bottom: 0 !important; }
+        .mb-2 { margin-bottom: 0.5rem !important; }
+        .mb-4 { margin-bottom: 1.5rem !important; }
+        .mr-2 { margin-right: 0.5rem !important; }
+        .mr-auto { margin-right: auto !important; }
+        .ml-2 { margin-left: 0.5rem !important; }
+        .px-2 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+        .py-4 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+        .p-0 { padding: 0 !important; }
+        .m-0 { margin: 0 !important; }
+        .card { position: relative; display: flex; flex-direction: column; background-color: #fff; border: 1px solid rgba(0,0,0,.125); border-radius: .25rem; }
+        .border-0 { border: 0 !important; }
+        .border { border: 1px solid var(--border) !important; }
+        .border-bottom { border-bottom: 1px solid var(--border) !important; }
+        .shadow-sm { box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important; }
+        .bg-light { background-color: var(--light) !important; }
+        .rounded-circle { border-radius: 50% !important; }
+        .font-weight-bold { font-weight: 700 !important; }
+        .text-dark { color: #343a40 !important; }
+        .text-muted { color: #6c757d !important; }
+        .text-success { color: var(--success) !important; }
+        .text-info { color: var(--info) !important; }
+        .text-warning { color: var(--warning) !important; }
+        .text-danger { color: var(--danger) !important; }
+        .text-center { text-align: center !important; }
+        .small { font-size: 80%; }
+        .table { width: 100%; border-collapse: collapse; }
+        .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; padding: .375rem .75rem; border-radius: .25rem; border: 1px solid transparent; text-decoration: none; }
+        .btn-sm { padding: .25rem .5rem; font-size: .875rem; }
+        .btn-success { color: #fff; background-color: var(--success); }
+        .btn-outline-danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+        .btn-light { color: #212529; background-color: #f8f9fa; border-color: #f8f9fa; }
+        .btn-link { background: none; border: none; color: #007bff; cursor: pointer; }
+        .form-group { margin-bottom: 1rem; }
+        .form-row { display: flex; flex-wrap: wrap; margin-right: -5px; margin-left: -5px; }
+        .form-row > .form-group { padding-left: 5px; padding-right: 5px; }
+        .form-control { display: block; width: 100%; padding: .375rem .75rem; font-size: 0.8rem; border: 1px solid #ced4da; border-radius: .25rem; }
+        .form-control-sm { height: calc(1.5em + .5rem + 2px); padding: .25rem .5rem; }
+        h5, h6 { margin: 0; margin-bottom: 0.5rem; }
+
+        /* NEW STYLES FOR ORDER CARD */
+        .order-action-btn {
+            border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; color: white;
+        }
+        .btn-accept { background-color: #2ecc71; margin-right: 5px; }
+        .btn-accept:hover { background-color: #27ae60; }
+        .btn-deny { background-color: #e74c3c; }
+        .btn-deny:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">Farm2Kitchen</div>
+        <div class="nav-container">
+            <nav class="nav flex-column mt-2">
+                <a href="{% url 'farmer_dashboard' %}" class="nav-link active"><i class="fas fa-th-large mr-2"></i> Dashboard</a>
+                <a href="{% url 'orders' %}" class="nav-link"><i class="fas fa-shopping-basket mr-2"></i> Orders</a>
+                <a href="{% url 'profile' %}" class="nav-link"><i class="fas fa-user-circle mr-2"></i> Profile</a>
+            </nav>
+        </div>
+        <div class="logout-wrapper">
+            <a href="{% url 'home' %}" class="nav-link logout-link"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="header">
+            <h2>
+                <span class="font-weight-bold text-dark small">FARMER: <span id="headerFarmerName">{{ user.username|upper }}</span></span>
+            </h2>
+            <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=12b74b&color=fff" width="30" class="rounded-circle border">
+        </header>
+
+        <div class="content container-fluid mt-3">
+            <div class="row mb-4 px-2">
+                <div class="col-4 px-2">
+                    <div class="stat-card py-4">
+                        <i class="fas fa-coins text-success mb-2" style="font-size:1.2rem"></i>
+                        <span class="label">Total Sales</span>
+                        <span class="val text-success">₹{{ total_sales }}</span>
+                    </div>
+                </div>
+                <div class="col-4 px-2">
+                    <div class="stat-card py-4">
+                        <i class="fas fa-clipboard-list text-info mb-2" style="font-size:1.2rem"></i>
+                        <span class="label">Total Orders</span>
+                        <span class="val">{{ orders_count }}</span>
+                    </div>
+                </div>
+                <div class="col-4 px-2">
+                    <div class="stat-card py-4">
+                        <i class="fas fa-boxes text-warning mb-2" style="font-size:1.2rem"></i>
+                        <span class="label">Items Listed</span>
+                        <span class="val" id="itemCount">{{ items_count }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if pending_orders %}
+            <div class="card border-0 shadow-sm inventory-card mb-4" style="border-left: 4px solid #f1c40f !important;">
+                <div class="bg-light inventory-header border-bottom">
+                    <h6 class="m-0 font-weight-bold text-warning"><i class="fas fa-bell mr-2"></i> Incoming Orders</h6>
+                </div>
+                <table class="table mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Hotel</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in pending_orders %}
+                        <tr id="order-row-{{ order.id }}">
+                            <td>#{{ order.id }}</td>
+                            <td class="font-weight-bold">{{ order.hotel.hotel_name }}</td>
+                            <td>
+                                {% for item in order.order_items.all %}
+                                    <div style="font-size: 0.8rem;">{{ item.item_name }} x {{ item.quantity }}kg</div>
+                                {% endfor %}
+                            </td>
+                            <td class="font-weight-bold">₹{{ order.total_amount }}</td>
+                            <td>
+                                <button class="order-action-btn btn-accept" onclick="updateOrderStatus({{ order.id }}, 'accept')">Accept</button>
+                                <button class="order-action-btn btn-deny" onclick="updateOrderStatus({{ order.id }}, 'deny')">Deny</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+           <div class="ai-container" style="background: white; border: 1px solid #eef0f2; padding: 20px; border-radius: 12px; margin: 20px 10px; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);">
+    <h5 style="color: #12b74b; font-weight: 700; margin-bottom: 10px;">
+        <i class="fas fa-robot"></i> Farm2Kitchen Smart Assistant
+    </h5>
+    <p class="text-muted small">Ask about prices, demand, or crops.</p>
+
+    <div style="margin-bottom: 15px;">
+        <input type="text" id="userQuestion" class="form-control" placeholder="Type your question here (e.g., 'What is the price of Tomato?')" style="border-radius: 20px; width: 100%; padding: 10px 15px;">
+    </div>
+
+    <button onclick="askGemini()" class="btn btn-success btn-sm font-weight-bold" style="border-radius: 20px; padding: 8px 25px; width: 100%;">
+        Ask AI Assistant <i class="fas fa-paper-plane ml-2"></i>
+    </button>
+
+    <div id="aiResponse" style="margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #12b74b; display: none;">
+        <strong style="display: block; margin-bottom: 5px; color: #343a40;">Harvesta Says:</strong>
+        <p id="responseText" style="margin: 0; color: #555; font-size: 0.9rem;">Loading...</p>
+    </div>
+</div>
+
+            <div class="card border-0 shadow-sm inventory-card">
+                <div class="bg-light inventory-header border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold">My Inventory</h6>
+                    <div class="d-flex align-items-center">
+                        <div class="search-container">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="inventorySearch" placeholder="Search..." onkeyup="filterInventory()">
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm font-weight-bold mr-2" onclick="clearInventory()" style="font-size:0.7rem">Clear All</button>
+                        <button class="btn btn-success btn-sm font-weight-bold" onclick="toggleOverlay('addProductOverlay', true)" style="font-size:0.7rem"><i class="fas fa-plus"></i> Add Product</button>
+                    </div>
+                </div>
+                <table class="table mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="addProductOverlay" class="custom-overlay">
+        <div class="add-card">
+            <h5 class="font-weight-bold mb-4">Add New Produce</h5>
+            <form id="productForm">
+                <div class="form-group">
+                    <label class="compact-label">Produce Name *</label>
+                    <input type="text" id="pName" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label class="compact-label">Category</label>
+                        <select id="pCat" class="form-control form-control-sm">
+                            <option>Vegetables</option>
+                            <option>Fruits</option>
+                            <option>Grains</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="compact-label">Unit</label>
+                        <select id="pUnit" class="form-control form-control-sm">
+                            <option>kg</option>
+                            <option>piece</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label class="compact-label">Quantity</label>
+                        <input type="number" id="pQty" class="form-control form-control-sm" value="0">
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="compact-label">₹ / Unit</label>
+                        <input type="number" id="pPrice" class="form-control form-control-sm" value="0">
+                    </div>
+                </div>
+                <div class="d-flex mt-4">
+                    <button type="button" class="btn btn-light border btn-sm flex-grow-1 mr-2 font-weight-bold" onclick="toggleOverlay('addProductOverlay', false)">Cancel</button>
+                    <button type="submit" class="btn btn-success btn-sm flex-grow-1 font-weight-bold">Add Produce</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editProductOverlay" class="custom-overlay">
+        <div class="add-card">
+            <h5 class="font-weight-bold mb-4">Update <span id="editTitle">Product</span></h5>
+            <form id="editForm">
+                <input type="hidden" id="editIdx">
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label class="compact-label">Quantity</label>
+                        <input type="number" id="editQty" class="form-control form-control-sm">
+                    </div>
+                    <div class="form-group col-6">
+                        <label class="compact-label">₹ / Unit</label>
+                        <input type="number" id="editPrice" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="d-flex mt-4 align-items-center">
+                    <button type="button" class="btn btn-link text-danger btn-sm font-weight-bold p-0 mr-auto" onclick="deleteSingleItem()">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                    <button type="button" class="btn btn-light border btn-sm mr-2 font-weight-bold" onclick="toggleOverlay('editProductOverlay', false)">Cancel</button>
+                    <button type="submit" class="btn btn-success btn-sm font-weight-bold">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    <script>
+       // --- AI ASSISTANT LOGIC (Text Only) ---
+    
+    // Allow pressing "Enter" key to submit
+    document.getElementById("userQuestion").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            askGemini();
+        }
+    });
+
+    function askGemini() {
+        const questionInput = document.getElementById('userQuestion');
+        const question = questionInput.value.trim();
+        const responseBox = document.getElementById('aiResponse');
+        const responseText = document.getElementById('responseText');
+
+        if (!question) {
+            alert("Please type a question first.");
+            return;
+        }
+
+        // Show loading state
+        responseBox.style.display = 'block';
+        responseText.innerText = "Thinking...";
+        responseText.style.color = "#555"; // Reset color
+
+        fetch('/ask-ai/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // Ensure this cookie function exists in your script
+            },
+            body: JSON.stringify({ question: question })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                responseText.innerText = data.answer; 
+            } else {
+                responseText.innerText = "Error: " + data.message;
+                responseText.style.color = "red";
+            }
+        })
+        .catch(err => {
+            responseText.innerText = "Server Error. Check console.";
+            console.error(err);
+        });
+    }
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function toggleOverlay(id, show) {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
+        }
+
+        // --- 1. ORDER ACTIONS (Accept/Deny) ---
+        async function updateOrderStatus(orderId, action) {
+            if(!confirm(`Are you sure you want to ${action} this order?`)) return;
+
+            try {
+                const response = await fetch(`/api/order-status/${orderId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ action: action })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    // Remove the row from the table smoothly
+                    const row = document.getElementById(`order-row-${orderId}`);
+                    if(row) row.remove();
+                    
+                    // Reload to update stats if needed
+                    location.reload(); 
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Network Error");
+            }
+        }
+
+        // --- 2. INVENTORY FUNCTIONS (FIXED) ---
+        async function loadInventory() {
+            try {
+                const response = await fetch('/api/inventory/');
+                const products = await response.json();
+                
+                const list = document.getElementById('inventoryList');
+
+                if (products.length === 0) {
+                    list.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted">No products listed.</td></tr>';
+                    return;
+                }
+
+                // FIXED: Used p.quantity_available and p.price_per_kg
+                list.innerHTML = products.map((p) => `
+                    <tr onclick="openEdit(${p.id}, '${p.name}', ${p.quantity_available}, ${p.price_per_kg})">
+                        <td class="align-middle font-weight-bold text-dark">${p.name} <br> <small class="text-muted">${p.category}</small></td>
+                        <td class="align-middle">${p.quantity_available} kg</td>
+                        <td class="align-middle font-weight-bold">₹${p.price_per_kg}</td>
+                        <td class="text-center align-middle">
+                            <button onclick="toggleStatus(event, ${p.id})" 
+                                class="btn-status ${p.is_active ? 'status-on' : 'status-off'}" 
+                                style="cursor: pointer; pointer-events: auto;">
+                                ${p.is_active ? 'AVAILABLE' : 'UNAVAILABLE'}
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) { console.error("Load failed", err); }
+        }
+
+        async function toggleStatus(event, id) {
+            event.stopPropagation();
+            try {
+                const response = await fetch(`/api/inventory/status/${id}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                if (response.ok) loadInventory();
+            } catch (error) { console.error(error); }
+        }
+
+        // --- 3. ADD PRODUCT ---
+        document.getElementById('productForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('pName').value,
+                category: document.getElementById('pCat').value,
+                qty: parseFloat(document.getElementById('pQty').value),
+                price: parseFloat(document.getElementById('pPrice').value)
+            };
+            await fetch('/api/inventory/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify(data)
+            });
+            toggleOverlay('addProductOverlay', false);
+            loadInventory();
+            this.reset();
+        };
+
+        // --- 4. EDIT & DELETE (FIXED POPULATION) ---
+        function openEdit(id, name, qty, price) {
+            document.getElementById('editIdx').value = id;
+            document.getElementById('editTitle').innerText = name;
+            document.getElementById('editQty').value = qty;
+            document.getElementById('editPrice').value = price;
+            toggleOverlay('editProductOverlay', true);
+        }
+
+        document.getElementById('editForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const data = {
+                id: document.getElementById('editIdx').value,
+                qty: parseFloat(document.getElementById('editQty').value),
+                price: parseFloat(document.getElementById('editPrice').value)
+            };
+            await fetch('/api/inventory/', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify(data)
+            });
+            toggleOverlay('editProductOverlay', false);
+            loadInventory();
+        };
+
+        async function deleteSingleItem() {
+            if(!confirm("Delete this item?")) return;
+            const id = document.getElementById('editIdx').value;
+            await fetch('/api/inventory/', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ id: id })
+            });
+            toggleOverlay('editProductOverlay', false);
+            loadInventory();
+        }
+
+        function filterInventory() {
+            const query = document.getElementById('inventorySearch').value.toLowerCase();
+            document.querySelectorAll('#inventoryList tr').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
+            });
+        }
+
+        async function clearInventory() {
+            if(confirm("Clear ALL items? This cannot be undone.")) {
+                // Implement clear API if needed, or loop delete
+                alert("Feature coming soon"); 
+            }
+        }
+
+        window.onload = loadInventory;
+    </script>
+</body>
+</html>

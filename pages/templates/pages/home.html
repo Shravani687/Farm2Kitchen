@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm2Hotels | Welcome</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* (Keep your existing CSS exactly as it was) */
+        :root { --primary-green: #22c55e; --primary-red: #ef4444; --primary-blue: #3b82f6; --text-dark: #1f2937; --text-gray: #6b7280; }
+        html { scroll-behavior: smooth; scroll-snap-type: y mandatory; overflow-y: scroll; height: 100vh; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center; background-attachment: fixed; color: var(--text-dark); }
+        section { height: 100vh; width: 100%; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; box-sizing: border-box; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: fixed; top: 0; left: 0; width: 100%; z-index: 100; box-sizing: border-box; }
+        .brand { font-size: 24px; font-weight: bold; color: #064e3b; display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; align-items: center; gap: 25px; }
+        .nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 600; font-size: 15px; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary-green); }
+        .signin-btn { background-color: var(--primary-green); color: white !important; padding: 8px 20px; border-radius: 20px; border: none; cursor: pointer; transition: background 0.3s; }
+        .signin-btn:hover { background-color: #15803d; transform: translateY(-2px); }
+        .hero-content { text-align: center; max-width: 800px; padding: 20px; }
+        .hero-icon { font-size: 60px; color: #4ade80; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .hero-content h1 { font-size: 54px; margin-bottom: 15px; color: white; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .hero-content p { font-size: 20px; color: #f3f4f6; line-height: 1.6; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .cards-container { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; width: 100%; }
+        .card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 40px 30px; width: 300px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid rgba(255,255,255,0.2); }
+        .card:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.3); border-color: green; border-radius: 25px; border-width: 4px; }
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; }
+        .card-hotel .icon-circle { background: #fee2e2; color: var(--primary-red); }
+        .card-hotel button { background: var(--primary-red); }
+        .card-farmer .icon-circle { background: #dcfce7; color: var(--primary-green); }
+        .card-farmer button { background: var(--primary-green); }
+        .card h2 { margin-bottom: 10px; font-size: 22px; color: #111; }
+        .card p { color: var(--text-gray); font-size: 14px; margin-bottom: 20px; min-height: 40px; }
+        .card button { width: 100%; padding: 12px; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 20px; transition: opacity 0.2s; }
+        .card button:hover { opacity: 0.9; }
+        .features-list { text-align: left; list-style: none; padding: 0; color: var(--text-gray); font-size: 14px; }
+        .features-list li { margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .features-list li i { color: #9ca3af; }
+        .about-content { text-align: center; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px); padding: 0 20px; }
+        .about-header { max-width: 800px; margin-bottom: 50px; }
+        .about-header h2 { color: #064e3b; margin-bottom: 20px; font-size: 42px; }
+        .about-header p { color: #4b5563; font-size: 20px; line-height: 1.6; }
+        .values-grid { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        .value-card { max-width: 250px; text-align: center; }
+        .value-card i { font-size: 32px; color: var(--primary-green); margin-bottom: 15px; background: #dcfce7; padding: 15px; border-radius: 50%; }
+        .value-card h3 { color: #1f2937; margin-bottom: 10px; }
+        .value-card p { color: #6b7280; font-size: 14px; line-height: 1.5; }
+        .why-content { text-align: center; width: 100%; padding: 40px 0; height: 100%; display: flex; flex-direction: column; justify-content: center; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); }
+        .features-grid { display: flex; justify-content: center; gap: 50px; margin-top: 50px; flex-wrap: wrap; }
+        .feature-item { max-width: 250px; }
+        .why-content h2 { color: white !important; margin-bottom: 10px; font-size: 36px; }
+        .feature-item h3 { color: white !important; margin-top: 15px; }
+        .feature-item p { color: #d1d5db !important; }
+        .feature-item i { font-size: 40px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); z-index: 1000; }
+        .modal-box { background: white; padding: 40px; border-radius: 24px; width: 350px; text-align: center; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; }}
+        .modal-box input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #e5e7eb; border-radius: 10px; background: #f9fafb; font-size: 15px; }
+        .modal-box input:focus { outline: none; border-color: var(--primary-green); background: white; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #9ca3af; transition: color 0.2s; }
+        .close-btn:hover { color: #374151; }
+        .login-submit-btn { width: 100%; padding: 14px; background: #111827; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand"><i class="fas fa-leaf"></i> Farm2Kitchen</div>
+        <div class="nav-links">
+            <a href="#hero">Home</a>
+            <a href="#about">About</a> 
+            <a href="{% url 'register' %}">Register</a>
+            <a href="#cards" class="signin-btn">Sign In</a>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="hero-content">
+            <i class="fas fa-seedling hero-icon"></i>
+            <h1>Welcome to Farm2Kitchen</h1>
+            <p>Connecting local farmers with hotels and restaurants for fresh, quality produce. 
+                A B2B platform revolutionizing the farm-to-table supply chain.</p>
+        </div>
+    </section>
+
+    <section id="cards">
+        <div class="cards-container">
+            <div class="card card-hotel">
+                <div class="icon-circle"><i class="fas fa-store"></i></div>
+                <h2>Hotel / Restaurant</h2>
+                <p>Browse local farmers, order fresh produce, and track deliveries</p>
+                <button onclick="openLogin('Hotel')">Login as Hotel</button>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Browse nearby farmers</li>
+                    <li><i class="fas fa-check"></i> Order bulk produce</li>
+                    <li><i class="fas fa-check"></i> Track order status</li>
+                </ul>
+            </div>
+
+            <div class="card card-farmer">
+                <div class="icon-circle"><i class="fas fa-leaf"></i></div>
+                <h2>Farmer</h2>
+                <p>List your produce, manage orders, and grow your business</p>
+                <button onclick="openLogin('Farmer')">Login as Farmer</button>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Manage produce listings</li>
+                    <li><i class="fas fa-check"></i> Accept/reject orders</li>
+                    <li><i class="fas fa-check"></i> View earnings</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" style="background: transparent;">
+        <div class="about-content">
+            <div class="about-header">
+                <h2>Our Mission</h2>
+                <p>Farm2Hotels was built to bridge the gap between hard-working local farmers and premium hospitality businesses.</p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card"><i class="fas fa-hand-holding-heart"></i><h3>Empowerment</h3><p>Giving farmers control over their prices.</p></div>
+                <div class="value-card"><i class="fas fa-chart-line"></i><h3>Efficiency</h3><p>Streamlining procurement to save time.</p></div>
+                <div class="value-card"><i class="fas fa-recycle"></i><h3>Sustainability</h3><p>Using AI to predict demand and reduce waste.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="why" style="background: transparent;"> 
+        <div class="why-content">
+            <h2>Why Choose Farm2Hotels?</h2>
+            <div class="features-grid">
+                <div class="feature-item"><i class="fas fa-carrot" style="color: #4ade80;"></i><h3>Fresh & Local</h3><p>Direct connection for fresh produce.</p></div>
+                <div class="feature-item"><i class="fas fa-hand-holding-dollar" style="color: #fbbf24;"></i><h3>Fair Prices</h3><p>Transparent pricing.</p></div>
+                <div class="feature-item"><i class="fas fa-truck-fast" style="color: #f87171;"></i><h3>Easy Tracking</h3><p>Real-time order tracking.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeLogin()">&times;</span>
+            <div class="icon-circle" style="width: 60px; height: 60px; font-size: 24px; background: #f3f4f6; color: #333;" id="modalIcon">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2 id="modalTitle" style="color: #1f2937;">Login</h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Welcome back! Please enter your details.</p>
+            
+            <form method="POST" action="{% url 'smart_login' %}">
+                {% csrf_token %}
+                
+                <input type="email" name="username" placeholder="Email Address" required>
+                
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <button type="submit" class="login-submit-btn">Sign In</button>
+            </form>
+            
+            <p style="margin-top: 20px; font-size: 13px; color: #666;">
+                Don't have an account? <a href="{% url 'register' %}" style="color: #22c55e; font-weight: bold;">Register</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('loginModal');
+        const modalTitle = document.getElementById('modalTitle');
+        let currentRole = "Farmer";
+
+        function openLogin(role) {
+            currentRole = role;
+            modalTitle.innerText = "Login as " + role;
+            modal.style.display = 'flex';
+        }
+
+        function closeLogin() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeLogin();
+            }
+        }
+
+        // FIX 6: Deleted the 'loginForm.addEventListener' block.
+        // We do NOT want JavaScript to stop the submit. 
+        // We want the form to submit naturally to Django.
+    </script>
+
+</body>
+</html>

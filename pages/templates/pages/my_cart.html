@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart | Farm2Hotels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* --- SAME VARIABLES & STYLES AS BEFORE --- */
+        :root { 
+            --primary-green: #2ecc71; 
+            --sidebar-gradient: linear-gradient(135deg, #0f3d4a 0%, #206a5d 100%);
+            --sidebar-width: 260px;
+            --bg-body: #eaeff1;
+            --bg-card: #ffffff;
+            --text-main: #1a202c;
+            --text-muted: #8898aa;
+            --border-color: rgba(0,0,0,0.05);
+        }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', Roboto, sans-serif; color: var(--text-main); margin: 0; }
+        
+        .sidebar { height: 100vh; width: var(--sidebar-width); position: fixed; top: 0; left: 0; background: var(--sidebar-gradient); color: white; padding-top: 20px; }
+        .brand-logo { text-align: center; padding: 20px; }
+        .logo-icon { font-size: 30px; background: rgba(255,255,255,0.1); width: 60px; height: 60px; line-height: 60px; border-radius: 50%; margin: 0 auto 10px auto; display: block; }
+        .sidebar a { padding: 16px 30px; display: flex; align-items: center; color: rgba(255,255,255,0.7); text-decoration: none; margin: 8px 20px; border-radius: 50px; font-weight: 500; transition: 0.3s; }
+        .sidebar a:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+        .sidebar a.active { background: #fff; color: #0f3d4a; font-weight: 700; }
+        .sidebar i { width: 25px; margin-right: 10px; }
+
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .cart-card { background: var(--bg-card); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; color: var(--text-muted); font-size: 0.9rem; border-bottom: 2px solid var(--border-color); }
+        td { padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: 600; }
+        
+        .grand-total { font-size: 1.5rem; font-weight: 800; color: var(--primary-green); text-align: right; padding-top: 20px; }
+        .checkout-btn { display: block; width: 100%; max-width: 300px; margin-left: auto; margin-top: 20px; background: var(--primary-green); color: white; padding: 15px; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        
+        /* --- NEW MINIMAL STYLES FOR BUTTONS --- */
+        .btn-icon { cursor: pointer; color: #8898aa; font-size: 0.9rem; margin: 0 8px; transition: 0.2s; }
+        .btn-icon:hover { color: var(--primary-green); transform: scale(1.2); }
+        .btn-remove { color: #e74c3c; font-size: 0.8rem; cursor: pointer; text-decoration: none; margin-top: 5px; display: inline-block; }
+        .btn-remove:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand-logo">
+            <div class="logo-icon"><i class="fas fa-hotel"></i></div>
+            <h4 class="font-weight-bold" style="margin: 0;">Farm2Kitchen</h4>
+        </div>
+        <nav>
+            <a href="{% url 'hotel_dashboard' %}"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="{% url 'browse_farmer' %}"><i class="fas fa-tractor"></i> Browse Farmers</a>
+            <a href="{% url 'my_cart' %}" class="active"><i class="fas fa-shopping-cart"></i> My Cart</a>
+            <a href="{% url 'hotel_profile' %}"><i class="fas fa-user-circle"></i> Hotel Profile</a>
+            <a href="{% url 'orders' %}"><i class="fas fa-receipt"></i> My Orders</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <h1 style="font-weight: 800; margin-bottom: 30px;">Your Shopping Cart</h1>
+
+        <div class="cart-card">
+            {% if cart_items %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            <div style="font-size: 1.1rem;">{{ item.product.name }}</div>
+                            <span style="font-size:0.8rem; color: #888;">{{ item.product.farmer.farm_name }}</span>
+                            <br>
+                            <span class="btn-remove" onclick="removeItem({{ item.id }})">
+                                <i class="fas fa-trash-alt"></i> Remove
+                            </span>
+                        </td>
+                        
+                        <td>₹{{ item.product.price_per_kg }} / {{ item.product.unit|default:"kg" }}</td>
+                        
+                        <td>
+                            <i class="fas fa-minus-circle btn-icon" onclick="updateQuantity({{ item.id }}, 'decrease')"></i>
+                            <span style="font-weight: 800; font-size: 1.1rem;">{{ item.quantity }}</span>
+                            <i class="fas fa-plus-circle btn-icon" onclick="updateQuantity({{ item.id }}, 'increase')"></i>
+                            
+                            <span style="font-size: 0.8rem; color:#888;">{{ item.product.unit|default:"kg" }}</span>
+                        </td>
+
+                        <td>₹{{ item.total_cost }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="grand-total">
+                Grand Total: ₹{{ grand_total }}
+            </div>
+
+            <button class="checkout-btn" onclick="placeOrder()">
+                Place Order <i class="fas fa-check-circle ml-2"></i>
+            </button>
+
+            {% else %}
+            <div style="text-align: center; padding: 50px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" style="width: 100px; opacity: 0.2; margin-bottom: 20px;">
+                <h3>Your Cart is Empty</h3>
+                <p style="color: #888;">Go back to dashboard to add fresh harvest.</p>
+                <a href="{% url 'hotel_dashboard' %}" style="display:inline-block; margin-top:20px; color: var(--primary-green); font-weight: bold; text-decoration: none;">Browse Products</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // UPDATE QUANTITY
+        function updateQuantity(itemId, action) {
+            fetch(`/api/update-cart/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ 'action': action })
+            })
+            .then(async response => {
+                if (response.ok) {
+                    location.reload(); 
+                } else {
+                    const data = await response.json();
+                    alert(data.error);
+                }
+            });
+        }
+
+        // REMOVE ITEM
+        function removeItem(itemId) {
+            if(!confirm("Are you sure you want to remove this item?")) return;
+
+            fetch(`/api/remove-item/${itemId}/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); 
+                } else {
+                    alert("Failed to delete.");
+                }
+            });
+        }
+
+        // PLACE ORDER
+        function placeOrder() {
+            if (!confirm("Confirm Order?")) return;
+            const btn = document.querySelector('.checkout-btn');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            fetch('/api/checkout/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    window.location.href = "{% url 'orders' %}";
+                } else {
+                    alert("Error: " + data.error);
+                    btn.innerText = "Place Order";
+                    btn.disabled = false;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

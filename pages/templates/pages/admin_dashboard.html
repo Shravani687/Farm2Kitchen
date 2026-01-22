@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Farm2Kitchen</title>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* --- PREMIUM THEME VARIABLES --- */
+        :root { 
+            --primary-green: #2ecc71; 
+            --dark-green: #27ae60;
+            --sidebar-width: 260px;
+            --sidebar-gradient: linear-gradient(135deg, #0f3d4a 0%, #206a5d 100%);
+            --bg-light: #eaeff1;
+            --card-radius: 20px;
+            --btn-radius: 50px;
+        }
+
+        body { 
+            background-color: var(--bg-light); 
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: #444;
+            overflow-x: hidden;
+        }
+
+        /* --- 1. SIDEBAR --- */
+        .sidebar {
+            height: 100vh; width: var(--sidebar-width); 
+            position: fixed; top: 0; left: 0; 
+            background: var(--sidebar-gradient); 
+            color: white;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding-top: 20px;
+        }
+        
+        .brand-logo { 
+            text-align: center; 
+            padding: 30px 20px 50px 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .logo-icon { 
+            font-size: 45px; color: #fff; margin-bottom: 10px; 
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+            background: rgba(255,255,255,0.1);
+            width: 80px; height: 80px; line-height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+            backdrop-filter: blur(5px);
+        }
+
+        .sidebar a {
+            padding: 16px 30px; 
+            display: flex; align-items: center;
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            margin: 8px 20px; 
+            border-radius: var(--btn-radius); 
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        .sidebar a:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+            padding-left: 35px;
+        }
+
+        .sidebar a.active { 
+            background: #ffffff; 
+            color: #0f3d4a;
+            font-weight: 700;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: scale(1.02);
+        }
+        
+        .sidebar a i { width: 25px; text-align: center; margin-right: 10px; font-size: 1.1rem; }
+
+
+        /* --- 2. BUTTONS --- */
+        .btn-add {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            color: white !important;
+            border: none;
+            padding: 10px 25px;
+            border-radius: var(--btn-radius);
+            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(56, 239, 125, 0.6);
+            text-decoration: none;
+        }
+
+        /* --- 3. CARDS & LAYOUT --- */
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        
+        .stat-card {
+            background: #fff; padding: 25px; border-radius: var(--card-radius);
+            position: relative; overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+            cursor: pointer; text-decoration: none !important; display: block; color: inherit;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .stat-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        .icon-circle {
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; margin-left: auto;
+            background: rgba(0,0,0,0.03);
+        }
+
+        .text-green { color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+        .text-orange { color: #f39c12; background: rgba(243, 156, 18, 0.1); }
+        .text-blue { color: #2980b9; background: rgba(41, 128, 185, 0.1); }
+        .text-red { color: #c0392b; background: rgba(192, 57, 43, 0.1); }
+
+        .stat-card h5 { font-size: 0.8rem; color: #8898aa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
+        .stat-card h2 { font-size: 2rem; font-weight: 800; color: #32325d; margin-top: 5px; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } 
+        .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; }
+        
+        .card { border-radius: var(--card-radius); border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand-logo">
+            <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+            <h4 style="font-weight: 700; letter-spacing: 1px;">Farm2Kitchen</h4>
+        </div>
+        
+        <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="{% url 'manage_farmers' %}" class="{% if request.resolver_match.url_name == 'manage_farmers' %}active{% endif %}">
+            <i class="fas fa-tractor"></i> Farmers
+        </a>
+        <a href="{% url 'manage_hotels' %}" class="{% if request.resolver_match.url_name == 'manage_hotels' %}active{% endif %}">
+            <i class="fas fa-hotel"></i> Hotels
+        </a>
+        <a href="{% url 'manage_products' %}" class="{% if request.resolver_match.url_name == 'manage_products' %}active{% endif %}">
+            <i class="fas fa-box"></i> Products
+        </a>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="d-flex justify-content-between align-items-center mb-5 animate-up">
+            <div>
+                <h3 style="font-weight: 800; color: #1a202c; margin:0;">Overview</h3>
+                <p class="text-muted m-0">Welcome back, Admin</p>
+            </div>
+            
+            <div>
+                <a href="{% url 'add_farmer' %}" class="btn btn-add mr-3">
+                    <i class="fas fa-plus mr-2"></i> Add Farmer
+                </a>
+                <a href="{% url 'add_hotel' %}" class="btn btn-add" style="background: linear-gradient(45deg, #FF512F, #DD2476); box-shadow: 0 4px 15px rgba(221, 36, 118, 0.4);">
+                    <i class="fas fa-plus mr-2"></i> Add Hotel
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            
+            <div class="col-md-3 animate-up delay-1">
+                <a href="#" class="stat-card d-flex align-items-center">
+                    <div>
+                        <h5>Total Revenue</h5>
+                        <h2 class="counter">₹{{ total_revenue|floatformat:2 }}</h2>
+                    </div>
+                    <div class="icon-circle text-green">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3 animate-up delay-2">
+                <a href="#" class="stat-card d-flex align-items-center">
+                    <div>
+                        <h5>Net Profit (10%)</h5>
+                        <h2 class="counter">₹{{ platform_earnings|floatformat:2 }}</h2>
+                    </div>
+                    <div class="icon-circle text-orange">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3 animate-up delay-3">
+                <a href="{% url 'manage_farmers' %}" class="stat-card d-flex align-items-center">
+                    <div>
+                        <h5>Active Farmers</h5>
+                        <h2 class="counter">{{ active_farmers }}</h2>
+                    </div>
+                    <div class="icon-circle text-blue">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3 animate-up delay-4">
+                <a href="{% url 'manage_hotels' %}" class="stat-card d-flex align-items-center">
+                    <div>
+                        <h5>Active Hotels</h5>
+                        <h2 class="counter">{{ active_hotels }}</h2>
+                    </div>
+                    <div class="icon-circle text-red">
+                        <i class="fas fa-building"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-8 animate-up delay-4">
+                <div class="card p-4" style="overflow: visible;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="m-0" style="font-weight: 700; color: #32325d;">Revenue Trend</h5>
+                        <button class="btn btn-sm btn-outline-secondary" style="border-radius: 50px;">
+                            <i class="fas fa-download mr-1"></i> Export
+                        </button>
+                    </div>
+                    <div style="height: 320px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 animate-up delay-4">
+                <div class="card p-4 h-100">
+                    <h5 style="font-weight: 700; color: #32325d; margin-bottom: 20px;">Product Mix</h5>
+                    <div style="height: 250px; position: relative;">
+                        <canvas id="productPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Use blank arrays if no data provided
+        const chartLabels = JSON.parse('{{ chart_labels|safe|default:"[]" }}');
+        const chartData = JSON.parse('{{ chart_data|safe|default:"[]" }}');
+
+        /* Revenue Chart */
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(46, 204, 113, 0.4)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels.length ? chartLabels : ['No Data'],
+                datasets: [{
+                    label: 'Revenue', 
+                    data: chartData.length ? chartData : [0],
+                    borderColor: '#2ecc71', backgroundColor: gradient, borderWidth: 3,
+                    pointBackgroundColor: '#fff', pointBorderColor: '#2ecc71', pointRadius: 5, tension: 0.4, fill: true
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f0f0f0' } }, x: { grid: { display: false } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        /* Pie Chart */
+        new Chart(document.getElementById('productPieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Veg', 'Fruit', 'Dairy'],
+                datasets: [{ data: [55, 25, 20], backgroundColor: ['#2ecc71', '#f1c40f', '#3498db'], borderWidth: 0, hoverOffset: 15 }]
+            },
+            options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }
+        });
+
+        /* Counter Logic for Smooth Numbers */
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.counter').forEach(counter => {
+                const raw = counter.innerText;
+                const isCurrency = raw.includes('₹');
+                let target = parseFloat(raw.replace(/[^\d.]/g, ''));
+                if(target > 0) {
+                    const step = target / 100;
+                    let current = 0;
+                    const update = () => {
+                        current += step;
+                        if(current < target) {
+                            counter.innerText = (isCurrency?'₹':'') + Math.ceil(current).toLocaleString('en-IN');
+                            requestAnimationFrame(update);
+                        } else {
+                            // Formatting for Indian Currency (Lakh/Cr)
+                            let final = "";
+                            if(target >= 10000000) final = (target/10000000).toFixed(2) + " Cr";
+                            else if(target >= 100000) final = (target/100000).toFixed(2) + " Lakh";
+                            else final = target.toLocaleString('en-IN');
+                            counter.innerText = (isCurrency?'₹':'') + final;
+                        }
+                    };
+                    update();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
